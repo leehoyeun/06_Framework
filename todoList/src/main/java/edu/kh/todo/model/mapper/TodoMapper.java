@@ -35,6 +35,20 @@ public interface TodoMapper {
 	int addTodo(Todo todo);
 	
 	Todo todoDetail(int todoNo);
+
+
+	int changeComplete(Todo todo);
+
+
+	int todoUpdate(Todo todo);
+
+
+	int todoDelete(int todoNo);
+	
+	
+	int getTotalCount();
+
+
 	
 	//Mapper의 메서드명 == mapper.xml 파일 내 태그의 id
 	//->메서드명과 sql구문중 id가 같은 태그가 서로 연결된다!

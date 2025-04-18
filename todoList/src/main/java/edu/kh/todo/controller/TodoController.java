@@ -4,11 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
+import com.zaxxer.hikari.HikariConfig;
 import edu.kh.todo.model.dto.Todo;
 import edu.kh.todo.model.service.TodoService;
 
@@ -16,8 +17,14 @@ import edu.kh.todo.model.service.TodoService;
 @RequestMapping("todo") // "/todo"로 시작하는 모든 요청 매핑
 public class TodoController {
 
+    private final HikariConfig hikariConfig;
+
 	@Autowired //의존성 주입(같은 타입 + 상속관계인 Bean을 의존성 주입 :DI)
 	private TodoService service;
+
+    TodoController(HikariConfig hikariConfig) {
+        this.hikariConfig = hikariConfig;
+    }
 	
 	@PostMapping("add") //  /todo/add 로 Post 방식 요청 매핑
 	public String addTodo(@RequestParam("todoTitle")String todoTitle,
@@ -72,4 +79,93 @@ public class TodoController {
 		return path;
 	}
 	
+	// /todo/changeComplete?todoNo=4&complete=Y
+	
+	/** 완료 여부 변경
+	 * @param todo : 커맨드 객체(@ModelAttribute 생략)
+	 * 				-파라미터의 key 와 Todo 객체의 필드명이 일치하면
+	 * 				-일치하는 필드값이 파라미터의 value값으로 세팅된 상태
+	 * 				-즉 , todoNo와 complete 두필드가 세팅 완료된 상태
+	 * @return
+	 */
+	@GetMapping("changeComplete")
+	public String changeComplete(/*@ModelAttribute*/ Todo todo,
+									RedirectAttributes ra) {
+		
+		//변경 서비스 호출
+		int result = service.changeComplete(todo);
+		
+		// 변경 성공 시 : "변경 성공!!!"
+		// 변경 실패 시 : "변경 실패.."
+		String message = null;
+		if(result>0) message = "변경 성공!!";
+		else 		 message = "변경 실패..";
+		
+		ra.addFlashAttribute("message",message);
+		
+		// 상대경로 (현재 위치 중요!!!)
+		// 현재 주소 : /todo/changeComplete
+		// 재요청 주소 : /todo/detail
+		return "redirect:detail?todoNo="+todo.getTodoNo();
+	}
+	
+	@GetMapping("update")
+	public String todoUpdate(@RequestParam("todoNo")int todoNo,
+							Model model) {
+		
+		//상제 조회 서비스 호출(재활용) -> 수정화면에 출력할 기존 내용으로 사용하기위해서
+		Todo todo = service.todoDetail(todoNo);
+		
+		model.addAttribute("todo",todo);
+		
+		
+		//classpath:/templates/todo/update.html 로 forward
+		return "todo/update";
+	}
+	
+	@PostMapping("update")
+	public String todoUpdate(Todo todo,RedirectAttributes ra) {
+		
+		//수정 서비스 호출후 결과 반환받기
+		int result = service.todoUpdate(todo);
+		
+		String path = "redirect:";
+		String message = null;
+		
+		if(result>0) {
+			// 상세 조회로 리다이렉트
+			path += "/todo/detail?todoNo="+todo.getTodoNo();
+			// redirect:/todo/detail?todoNo=1
+			message = "수정 성공!!";
+		}else {
+			//다시 수정 화면 리다이렉트
+			path += "/todo/update?todoNo=" + todo.getTodoNo();
+			// redirect:/todo/update?todoNo=1
+			message = "수정 실패...";
+		} 
+		
+		ra.addFlashAttribute("message",message);
+		
+		return path;
+	}
+	
+	@GetMapping("delete")
+	public String tododelet(@RequestParam("todoNo")int todoNo,
+						RedirectAttributes ra) {
+		
+		int result = service.todoDelete(todoNo);
+		String path = null;
+		String message = null;
+		
+		if(result>0) {
+			path = "/";
+			message = "삭제 성공!!";
+		}else {
+			path = "/todo/detail?todoNo="+todoNo;
+			message= "삭제 실패...";
+		}
+		ra.addAttribute("message",message);
+		
+		return "redirect:"+path;
+	}
 }
