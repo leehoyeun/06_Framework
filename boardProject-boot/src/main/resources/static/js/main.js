@@ -45,6 +45,7 @@ const getCookie = (key) => {
 
 //이메일 작성 input 태그요소
 const loginEamil = document.querySelector("#loginForm input[name='memberEmail']");
+const loginPw = document.querySelector("#loginForm input[name='memberPw']");
 
 if(loginEamil != null){//로그인폼의 이메일 input태그가 화면상에 존재할 때
 
@@ -60,4 +61,10 @@ if(loginEamil != null){//로그인폼의 이메일 input태그가 화면상에 �
   
   }
 
+ 
+
+}
+
+if(loginPw != null){
+  
 }

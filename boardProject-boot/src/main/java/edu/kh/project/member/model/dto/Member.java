@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Member {
 
-	private int mamberNo;				//회원번호
+	private int memberNo;				//회원번호
 	private String memberEmail;			//회원 이메일
 	private String memberPw;			//회원 비밀번호
 	private String memberNickname;		//회원 닉네임
