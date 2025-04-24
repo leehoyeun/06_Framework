@@ -52,7 +52,15 @@
 
 
         </pre>
+        <!-- Controller ->
+        문자,숫자,파일 등 섞여서 넘어옴
+        
+        이를 MultipartResolver 이용해서 섞여있는 파라미터 분리
 
+        문자열,숫자 -> String
+        파일 -> MultipartFile 
+        
+        -->
         <form action="/myPage/file/test1"
               method="POST"
               enctype="multipart/form-data"
