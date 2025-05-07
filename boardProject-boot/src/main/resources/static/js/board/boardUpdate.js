@@ -60,6 +60,7 @@ const updatePreview = (file, order) => {
 	
 	// deleteOrderList에서 해당 이미지 순서를 삭제
 	// -> 왜?? 이전에 X 버튼을 눌러 삭제 기록이 있을 수도 있기 때문에
+	// 자바스크립트에서 set 객체 삭제는 remove가 아니라 delete 임.
 	deleteOrderList.delete(order);
 }
 
